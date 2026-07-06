@@ -4,7 +4,7 @@
 
 import React, {useState, useRef} from "react";
 
-import PresentationMode from "./presentation/PresentationMode";
+//import PresentationMode from "./presentation/PresentationMode";
 
 import {speak, stopSpeaking} from "./textToSpeech";
 import {
