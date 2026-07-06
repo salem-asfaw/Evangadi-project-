@@ -133,101 +133,125 @@ export default function Auth() {
     speak("Please speak your last name");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setSuccessMessage(null);
-    const normalizedEmail = email.trim().toLowerCase();
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!normalizedEmail) {
-      setError("Email is required.");
+  setError(null);
+  setSuccessMessage(null);
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!normalizedEmail) {
+    setError("Email is required.");
+    return;
+  }
+
+  if (!emailPattern.test(normalizedEmail)) {
+    setError("Please enter a valid email address.");
+    return;
+  }
+
+  if (!password.trim()) {
+    setError("Password is required.");
+    return;
+  }
+
+  const trimmedFirstName = firstName.trim();
+  const trimmedLastName = lastName.trim();
+
+  if (!isLogin) {
+    if (!trimmedFirstName) {
+      setError("First name is required.");
       return;
     }
-    if (!emailPattern.test(normalizedEmail)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-    if (!password.trim()) {
-      setError("Password is required.");
+
+    if (trimmedFirstName.length < 3) {
+      setError("First name must be at least 3 characters long.");
       return;
     }
 
-    const trimmedFirstName = firstName.trim();
-    const trimmedLastName = lastName.trim();
-
-    if (!isLogin) {
-      if (!trimmedFirstName) {
-        setError("First name is required.");
-        return;
-      }
-      if (trimmedFirstName.length < 3) {
-        setError("First name must be at least 3 characters long.");
-        return;
-      }
-      if (!trimmedLastName) {
-        setError("Last name is required.");
-        return;
-      }
-      if (trimmedLastName.length < 3) {
-        setError("Last name must be at least 3 characters long.");
-        return;
-      }
-      if (password.length < 6) {
-        setError("Password must be at least 6 characters long.");
-        return;
-      }
+    if (!trimmedLastName) {
+      setError("Last name is required.");
+      return;
     }
 
-    setLoading(true);
-
-    try {
-      if (isLogin) {
-        await login({email: normalizedEmail, password});
-        setSuccessMessage("Sign-in successful. Redirecting...");
-        setEmail("");
-        setPassword("");
-        setShowPassword(false);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const from = location.state?.from?.pathname || "/dashboard";
-        navigate(from, {replace: true});
-      } else {
-        await register({
-          firstName: trimmedFirstName,
-          lastName: trimmedLastName,
-          email: normalizedEmail,
-          password,
-        });
-
-        //########################## the fifth comment
-        // setSuccessMessage('Registration successful! Please log in.');
-        // // Clear form fields
-        // setFirstName('');
-        // setLastName('');
-        // setEmail('');
-        // setPassword('');
-        // // Automatically switch to login form after 1.5 seconds
-        // setTimeout(() => {
-        //   setIsLogin(true);
-        //   setSuccessMessage(null);
-        // }, 1500);
-        setSuccessMessage("Registration successful. Redirecting...");
-        setFirstName("");
-        setLastName("");
-        setEmail("");
-        setPassword("");
-        setShowPassword(false);
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        navigate("/dashboard", { replace: true });
-      }
-    } catch (err) {
-      setError(err.message || "An unexpected error occurred.");
-    } finally {
-      setLoading(false);
+    if (trimmedLastName.length < 3) {
+      setError("Last name must be at least 3 characters long.");
+      return;
     }
-  };
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+  }
+
+  setLoading(true);
+
+  try {
+    if (isLogin) {
+      await login({
+        email: normalizedEmail,
+        password,
+      });
+
+      setSuccessMessage("Sign-in successful. Redirecting...");
+
+      setEmail("");
+      setPassword("");
+      setShowPassword(false);
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const from = location.state?.from?.pathname || "/dashboard";
+
+      navigate(from, {
+        replace: true,
+      });
+
+    } else {
+
+      await register({
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
+        email: normalizedEmail,
+        password,
+      });
+
+
+      setSuccessMessage("Registration successful. Redirecting...");
+
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setPassword("");
+      setShowPassword(false);
+
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+
+      navigate("/dashboard", {
+        replace: true,
+      });
+    }
+
+  } catch (err) {
+
+    console.log("AUTH ERROR:", err);
+
+    setError(
+      err.message || "Something went wrong. Please try again later."
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+};
 
   return (
     <div className={styles.auth}>
