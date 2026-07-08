@@ -4,57 +4,118 @@ import { registerService, loginService } from '../service/auth.service.js';
 /**
  * Handles user registration requests.
  *
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @param {import('express').NextFunction} next
+ * @param {import('express').Request} req - The Express request object.
+ * @param {import('express').Response} res - The Express response object.
+ * @param {import('express').NextFunction} next - The Express next function.
  * @returns {Promise<void>}
  */
 export const registerController = async (req, res, next) => {
   try {
-    console.log("REGISTER BODY:", req.body);
+    const { firstName, lastName, email, password } = req.body;
+//################### the second comment 
+  //   const newUser = await registerService({
+  //     firstName,
+  //     lastName,
+  //     email,
+  //     password,
+  //   });
 
-    const authResult = await registerService(req.body);
+  //   res.status(StatusCodes.CREATED).json({
+  //     success: true,
+  //     message: 'User registered successfully.',
+  //     user: newUser,
+  //   });
+  // } catch (error) {
+  //   next(error);
+    // }
+     const authResult = await registerService({
+      firstName,
+      lastName,
+      email,
+      password,
+    });
 
-    return res.status(StatusCodes.CREATED).json({
+    res.status(StatusCodes.CREATED).json({
       success: true,
+      message: "User registered successfully.",
       user: authResult.user,
       token: authResult.token,
     });
   } catch (error) {
-    console.log("REGISTER ERROR FULL:", error);
-
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message,
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-    });
+    next(error);
   }
 };
 
 /**
  * Handles user login requests.
  *
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @param {import('express').NextFunction} next
+ * @param {import('express').Request} req - The Express request object.
+ * @param {import('express').Response} res - The Express response object.
+ * @param {import('express').NextFunction} next - The Express next function.
  * @returns {Promise<void>}
  */
 export const loginController = async (req, res, next) => {
   try {
-    const authResult = await loginService(req.body);
+    const { email, password } = req.body;
 
-    return res.status(StatusCodes.OK).json({
+    const authResult = await loginService({ email, password });
+
+    res.status(StatusCodes.OK).json({
       success: true,
+      message: 'Login successful.',
       user: authResult.user,
       token: authResult.token,
     });
   } catch (error) {
-    console.log("LOGIN ERROR FULL:", error);
-
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message,
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-    });
+    next(error);
   }
 };
+
+
+
+
+
+// import { StatusCodes } from "http-status-codes";
+// import { registerService, loginService } from "../service/auth.service.js";
+
+// export const registerController = async (req, res, next) => {
+//   try {
+//     const { firstName, lastName, email, password } = req.body;
+
+//     const authResult = await registerService({
+//       firstName,
+//       lastName,
+//       email,
+//       password,
+//     });
+
+//     res.status(StatusCodes.CREATED).json({
+//       success: true,
+//       message: "User registered successfully.",
+//       user: authResult.user,
+//       token: authResult.token,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+// export const loginController = async (req, res, next) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const authResult = await loginService({
+//       email,
+//       password,
+//     });
+
+//     res.status(StatusCodes.OK).json({
+//       success: true,
+//       message: "Login successful.",
+//       user: authResult.user,
+//       token: authResult.token,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };

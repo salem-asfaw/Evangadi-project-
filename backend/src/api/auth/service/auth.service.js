@@ -49,28 +49,20 @@ export const registerService = async ({
   if (userExists) {
     throw new BadRequestError('User already exists with this email.');
   }
-console.log("REGISTER DATA:", {
-  firstName,
-  lastName,
-  email,
-  password
-});
-console.log("DB RESULT:", result);
+
   // every time we call bcrypt.genSalt, it generates a new random salt string.
   const salt = await bcrypt.genSalt(10); // generates a unique random salt each call
   const hashedPassword = await bcrypt.hash(password, salt);
-  const sql = `
-  INSERT INTO users (user_id, first_name, last_name, email, password_hash)
-  VALUES ((SELECT IFNULL(MAX(user_id),0)+1 FROM users t), ?, ?, ?, ?)
-`;
+  const sql =
+    'INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?)';
   let result;
   try {
     result = await safeExecute(sql, [
-  firstName,
-  lastName,
-  normalizedEmail,
-  hashedPassword
-]);
+      firstName,
+      lastName,
+      normalizedEmail,
+      hashedPassword,
+    ]);
   } catch (error) {
     if (error?.code === 'ER_DUP_ENTRY') {
       throw new BadRequestError('User already exists with this email.');
