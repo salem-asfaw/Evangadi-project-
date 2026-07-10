@@ -1,5 +1,4 @@
 
-
 import path from "path";
 import { StatusCodes } from "http-status-codes";
 import { BadRequestError } from "../../../utils/errors/index.js";
@@ -12,7 +11,7 @@ import {
   getDocumentMetaService,
   assertOwnedDocument,
   listDocumentsService,
-  deleteDocumentService,//deleting functionality
+  deleteDocumentService,
 } from "../service/rag.service.js";
 
 export const createDocumentMulterErrorHandler = (error, req, res, next) => {
@@ -30,7 +29,7 @@ export const createDocumentMulterErrorHandler = (error, req, res, next) => {
 
   next(error);
 };
-//pdf upload
+
 export const createDocumentController = async (req, res, next) => {
   try {
     if (!req.file) {
@@ -59,6 +58,10 @@ export const queryDocumentController = async (req, res, next) => {
     const { documentId } = req.params;
     const { query } = req.body;
 
+    // console.log("documentId:", documentId);
+    // console.log("user:", req.user);
+    // console.log("query:", query);
+
     const result = await queryDocumentService(
       Number(documentId),
       req.user.id, // ← FIXED
@@ -70,7 +73,7 @@ export const queryDocumentController = async (req, res, next) => {
       data: result,
     });
   } catch (error) {
-    
+    // console.error("❌ QUERY ERROR:", error);
     next(error);
   }
 };
@@ -96,6 +99,7 @@ export const searchInDocumentController = async (req, res, next) => {
   }
 };
 
+
 const UPLOAD_ROOT = path.resolve(process.cwd(), "uploads/rag");
 
 export const getDocumentFileController = async (req, res, next) => {
@@ -111,7 +115,6 @@ export const getDocumentFileController = async (req, res, next) => {
 };
 
 export const getDocumentMetaController = async (req, res, next) => {
-  //  Fetch metadata for selected document
   try {
     const data = await getDocumentMetaService(
       req.params.documentId,
@@ -128,7 +131,8 @@ export const getDocumentMetaController = async (req, res, next) => {
   }
 };
 
-export const deleteDocumentController = async (req, res, next) => { //deleting uploded file
+
+export const deleteDocumentController = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { documentId } = req.params;
